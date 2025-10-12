@@ -47,7 +47,7 @@ class AuthController extends Controller
             'user' => new UserResource($user),
             'company_cars' => CarResource::collection($cars) // Now includes individual user's car too
         ]);
-    }
+     }
        public function logout(Request $request)
     {
         $user = $request->user();
