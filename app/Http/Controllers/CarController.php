@@ -30,7 +30,8 @@ class CarController extends Controller
                     ->where('is_active', true)
                     ->get();
 
-        return response()->json([
+           return response()->json([
+            'success' => true, // <-- ADDED 'success' key
             'cars' => CarResource::collection($cars)
         ]);
     }
