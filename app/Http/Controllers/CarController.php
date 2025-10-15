@@ -136,6 +136,7 @@ class CarController extends Controller
         $latestLocation = $car->latestLocation;
 
         return response()->json([
+            'success' => true,
             'door_open' => $latestLocation ? $latestLocation->door_open : false,
             'timestamp' => $latestLocation ? $latestLocation->recorded_at->toISOString() : null
         ]);
@@ -150,6 +151,7 @@ class CarController extends Controller
         $latestLocation = $car->latestLocation;
 
         return response()->json([
+            'success' => true,
             'fuel_cutoff' => $latestLocation ? $latestLocation->fuel_cutoff : false,
             'timestamp' => $latestLocation ? $latestLocation->recorded_at->toISOString() : null
         ]);
