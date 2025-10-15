@@ -89,8 +89,9 @@ class CarController extends Controller
             ], 404);
         }
 
-        return response()->json([
-            'location' => new GpsDataResource($latestLocation)
+        return response()->json([ 
+          'success' => true,
+          'location' => new GpsDataResource($latestLocation)
         ]);
     }
 
