@@ -4,6 +4,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarCommandController;
+use App\Http\Controllers\GeoFenceController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -26,6 +27,7 @@ Route::middleware('token.auth')->group(function () {
             Route::get('/locations', [CarController::class, 'locationHistory']);
             Route::get('/door-status', [CarController::class, 'doorStatus']);
             Route::get('/fuel-cutoff', [CarController::class, 'fuelCutoff']);
+            Route::get('/geofences', [GeoFenceController::class, 'index']);
         });
         
         // Control permissions required
@@ -36,6 +38,9 @@ Route::middleware('token.auth')->group(function () {
             // Command routes
             Route::post('/commands', [CarCommandController::class, 'sendCommand']);
             Route::get('/commands', [CarCommandController::class, 'getCommands']);
+            Route::post('/geofences', [GeoFenceController::class, 'store']);
+            Route::put('/geofences/{fenceId}', [GeoFenceController::class, 'update']);
+            Route::delete('/geofences/{fenceId}', [GeoFenceController::class, 'destroy']);
         });
     });
 });
