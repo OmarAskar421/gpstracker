@@ -121,7 +121,7 @@ class CarController extends Controller
             'car_name' => $car->car_name,
             'date' => $date,
             'total_distance' => round($totalDistance, 2),
-            'max_speed' => $locations->max('speed') ?? 0,
+            'max_speed' => $locations->max('speed') ?? 0.0,
             'locations_count' => $locations->count(),
             'locations' => GpsDataResource::collection($locations)
         ]);
