@@ -46,10 +46,9 @@ class Car extends Model
         return $this->hasOne(GpsData::class)->latest('recorded_at');
     }
 
-    public function geoFences()
+    public function geoFence()
     {
-        return $this->hasMany(GeoFence::class);
-    }
+        return $this->hasOne(GeoFence::class);    }
 
     public function alarms()
     {

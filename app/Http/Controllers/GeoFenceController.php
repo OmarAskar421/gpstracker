@@ -1,40 +1,43 @@
 <?php
+// app/Http/Controllers/GeoFenceController.php
 
 namespace App\Http\Controllers;
 
-use App\Models\GeoFence; // We already have this model
-use App\Http\Resources\GeoFenceResource; // We already have this resource
+use App\Models\GeoFence;
+use App\Http\Resources\GeoFenceResource;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Models\Car; // Make sure Car model is imported
 
 class GeoFenceController extends Controller
 {
     /**
-     * List all geofences for a specific car.
-     * (Called by Flutter app)
+     * Get the single geofence for a car.
      *
-     * GET /api/cars/{carId}/geofences
+     * GET /api/cars/{carId}/geofence
      */
-    public function index(Request $request)
+    public function show(Request $request)
     {
-        // The 'car' object is injected by our 'can.access.car' middleware
-        $car = $request->car;
+        $car = $request->car; // Injected by CanAccessCar middleware
+
+        // Use the new 'geoFence' singular relationship
+        $fence = $car->geoFence;
+
+        if (!$fence) {
+            return response()->json(['success' => false, 'message' => 'No geofence set for this car.'], 404);
+        }
         
-        $fences = $car->geoFences()->get();
-        
-        return GeoFenceResource::collection($fences);
+        return new GeoFenceResource($fence);
     }
 
     /**
-     * Create a new geofence for a car.
-     * (Called by Flutter app)
+     * Create or update the single geofence for a car.
      *
-     * POST /api/cars/{carId}/geofences
+     * POST /api/cars/{carId}/geofence
      */
-    public function store(Request $request)
+    public function storeOrUpdate(Request $request)
     {
-        // The 'car' object is injected by 'can.access.car' middleware
-        $car = $request->car;
+        $car = $request->car; // Injected by CanAccessCar middleware
 
         $validated = $request->validate([
             'fence_name' => 'required|string|max:100',
@@ -44,68 +47,48 @@ class GeoFenceController extends Controller
             // Circle validation
             'center_lat' => 'required_if:fence_type,circle|numeric|min:-90|max:90',
             'center_lng' => 'required_if:fence_type,circle|numeric|min:-180|max:180',
-            'radius' => 'required_if:fence_type,circle|numeric|min:1', // Min 1 meter radius
+            'radius' => 'required_if:fence_type,circle|numeric|min:1',
 
             // Polygon validation
-            'polygon_coordinates' => 'required_if:fence_type,polygon|array|min:3', // Min 3 points for a polygon
-            'polygon_coordinates.*' => 'array|size:2', // Each point must be [lat, lng]
-            'polygon_coordinates.*.0' => 'numeric|min:-90|max:90', // Latitude
-            'polygon_coordinates.*.1' => 'numeric|min:-180|max:180', // Longitude
+            'polygon_coordinates' => 'required_if:fence_type,polygon|array|min:3',
+            'polygon_coordinates.*' => 'array|size:2',
+            'polygon_coordinates.*.0' => 'numeric|min:-90|max:90',
+            'polygon_coordinates.*.1' => 'numeric|min:-180|max:180',
         ]);
 
-        $fence = $car->geoFences()->create($validated);
+        // This is the key logic:
+        // 1. Look for a geofence where 'car_id' is the car's ID.
+        // 2. If it exists, update it with the new $validated data.
+        // 3. If it does not exist, create it with the $validated data.
+        $fence = GeoFence::updateOrCreate(
+            ['car_id' => $car->id],
+            $validated
+        );
 
         return response()->json([
             'success' => true,
-            'message' => 'Geofence created successfully',
+            'message' => 'Geofence saved successfully',
             'geofence' => new GeoFenceResource($fence)
-        ], 201);
+        ], 200); // 200 OK because it could be an update
     }
 
     /**
-     * Update a geofence (e.g., toggle active status).
-     * (Called by Flutter app)
+     * Delete the single geofence for a car.
      *
-     * PUT /api/cars/{carId}/geofences/{fenceId}
+     * DELETE /api/cars/{carId}/geofence
      */
-    public function update(Request $request, $carId, $fenceId)
+    public function destroy(Request $request)
     {
-        // Middleware confirms we can access the car.
-        // We just need to find the specific fence for that car.
-        $fence = GeoFence::where('id', $fenceId)
-                         ->where('car_id', $request->car->id)
-                         ->firstOrFail();
-        
-        $validated = $request->validate([
-            'fence_name' => 'sometimes|string|max:100',
-            'is_active' => 'sometimes|boolean',
-            // Add other fields here if you want to allow editing them
-        ]);
+        $car = $request->car; // Injected by CanAccessCar middleware
 
-        $fence->update($validated);
+        // Use the relationship to find and delete the geofence
+        $fence = $car->geoFence;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Geofence updated',
-            'geofence' => new GeoFenceResource($fence)
-        ]);
-    }
+        if ($fence) {
+            $fence->delete();
+            return response()->json(['success' => true, 'message' => 'Geofence deleted']);
+        }
 
-    /**
-     * Delete a geofence.
-     * (Called by Flutter app)
-     *
-     * DELETE /api/cars/{carId}/geofences/{fenceId}
-     */
-    public function destroy(Request $request, $carId, $fenceId)
-    {
-        // Middleware confirms we can access the car.
-        $fence = GeoFence::where('id', $fenceId)
-                         ->where('car_id', $request->car->id)
-                         ->firstOrFail();
-        
-        $fence->delete();
-
-        return response()->json(['success' => true, 'message' => 'Geofence deleted']);
+        return response()->json(['success' => false, 'message' => 'No geofence to delete'], 404);
     }
 }
