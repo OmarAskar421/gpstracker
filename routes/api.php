@@ -5,11 +5,12 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarCommandController;
 use App\Http\Controllers\GeoFenceController;
+use App\Http\Controllers\TrackerController; // <-- 1. ADD THIS IMPORT
 use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::post('/login', [AuthController::class, 'login']);
-
+Route::post('/tracker/data', [TrackerController::class, 'storeData']);
 // Protected routes (require token)
 Route::middleware('token.auth')->group(function () {
     // Authentication

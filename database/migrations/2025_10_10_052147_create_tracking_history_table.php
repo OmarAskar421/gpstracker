@@ -17,10 +17,10 @@ return new class extends Migration
             $table->decimal('max_speed', 5, 2)->default(0);
             $table->decimal('avg_speed', 5, 2)->default(0);
             $table->integer('travel_duration')->default(0);
-            $table->json('start_location')->nullable();
-            $table->json('end_location')->nullable();
+            $table->text('start_location')->nullable();
+            $table->text('end_location')->nullable();
             $table->timestamps();
-
+ 
             $table->unique(['car_id', 'travel_date']);
             $table->index(['travel_date']);
             $table->index(['car_id', 'travel_date']);

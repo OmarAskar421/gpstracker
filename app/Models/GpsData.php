@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class GpsData extends Model
 {
     use HasFactory;
-
+    public $timestamps = false;
     protected $table = 'gps_data';
 
     protected $fillable = [
