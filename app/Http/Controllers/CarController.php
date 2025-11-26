@@ -110,7 +110,7 @@ class CarController extends Controller
 
         $locations = $car->gpsData()
                         ->whereDate('recorded_at', $date)
-                        ->where('speed', '>', 1.5)   // FILTER STOPPED POINTS
+                        ->where('speed', '>', 4.5)   // FILTER STOPPED POINTS
                         ->orderBy('recorded_at', 'asc')
                         ->get();
 
