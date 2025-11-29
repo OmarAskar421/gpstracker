@@ -19,7 +19,8 @@ Route::middleware('token.auth')->group(function () {
     
     // Car list (no specific car needed)
     Route::get('/cars', [CarController::class, 'index']);
-    
+    Route::post('/update-fcm-token', [AuthController::class, 'updateFcmToken']);
+
     // Car-specific routes with authorization middleware
     Route::prefix('cars/{carId}')->middleware('can.access.car')->group(function () {
         // View permissions only

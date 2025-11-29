@@ -17,6 +17,8 @@ class User extends Authenticatable
         'email',
         'company_id',
         'token',
+        'fcm_token',              // ADD THIS
+        'push_notifications_enabled', // ADD THIS
         'is_active'
     ];
 

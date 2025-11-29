@@ -69,6 +69,23 @@ class AuthController extends Controller
             'user' => new UserResource($request->user())
         ]);
     }
+    public function updateFcmToken(Request $request)
+{
+    $request->validate([
+        'fcm_token' => 'required|string|min:100'
+    ]);
+
+    $user = $request->user();
+    $user->update([
+        'fcm_token' => $request->fcm_token,
+        'push_notifications_enabled' => true
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Notification token stored successfully'
+    ]);
+}
 
     // ... rest of the methods remain the same
 }
