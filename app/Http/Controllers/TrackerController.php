@@ -34,22 +34,25 @@ class TrackerController extends Controller
             'recorded_at' => 'sometimes|date',
         ]);
 
-        try {
-            $car = Car::where('imei', $validated['imei'])->first();
-            $gpsData = $car->gpsData()->create($validated);
+        
+    try {
+        $car = Car::where('imei', $validated['imei'])->first();
+        
+        // FIX: Get PREVIOUS location BEFORE saving new point
+        $lastGpsData = $car->gpsData()->latest('recorded_at')->first();
+        
+        $gpsData = $car->gpsData()->create($validated);
 
-            // Check geofence if car has one
-            if ($car->geoFence && $car->geoFence->is_active) {
-                $lastGpsData = $car->latestLocation; // Before current point
-                $this->checkGeoFenceForAlarm($car, $gpsData, $lastGpsData);
-            }
-
-            return response()->json(['status' => 'success']);
-
-        } catch (\Exception $e) {
-            Log::error('Failed to store tracker data: ' . $e->getMessage(), $request->all());
-            return response()->json(['status' => 'failed', 'message' => 'Server error'], 500);
+        if ($car->geoFence && $car->geoFence->is_active) {
+            $this->checkGeoFenceForAlarm($car, $gpsData, $lastGpsData);
         }
+
+        return response()->json(['status' => 'success']);
+
+    } catch (\Exception $e) {
+        Log::error('Geofence error: ' . $e->getMessage());
+        return response()->json(['status' => 'failed'], 500);
+    }
     }
 
     private function checkGeoFenceForAlarm(Car $car, GpsData $newData, ?GpsData $lastData)
