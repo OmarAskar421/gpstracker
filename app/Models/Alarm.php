@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class Alarm extends Model
 {
     use HasFactory;
+    public $timestamps = false;  // ← ADD THIS LINE
 
     protected $fillable = [
         'car_id',
