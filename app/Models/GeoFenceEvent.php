@@ -11,6 +11,7 @@ class GeoFenceEvent extends Model
     use HasFactory;
 
     protected $table = 'geo_fence_events';
+    public $timestamps = false;  // ← ADD THIS LINE
 
     protected $fillable = [
         'geo_fence_id',
