@@ -1,5 +1,7 @@
 <?php
+// app/Http/Controllers/TrackerController.php
 namespace App\Http\Controllers;
+
 use App\Models\Car;
 use App\Models\GpsData;
 use App\Models\GeoFenceEvent;
@@ -34,33 +36,49 @@ class TrackerController extends Controller
             'recorded_at' => 'sometimes|date',
         ]);
 
-        
-    try {
-        $car = Car::where('imei', $validated['imei'])->first();
-        
-        // FIX: Get PREVIOUS location BEFORE saving new point
-        $lastGpsData = $car->gpsData()->latest('recorded_at')->first();
-        
-        $gpsData = $car->gpsData()->create($validated);
+        try {
+            $car = Car::where('imei', $validated['imei'])->first();
+            
+            // FIX: Get PREVIOUS point BEFORE inserting new one
+            $lastGpsData = $car->gpsData()->latest('recorded_at')->first();
+            
+            // DEBUG: Log what we're checking
+            Log::info('Geofence check', [
+                'car_id' => $car->id,
+                'last_point' => $lastGpsData ? $lastGpsData->latitude . ',' . $lastGpsData->longitude : 'null',
+                'new_point' => $validated['latitude'] . ',' . $validated['longitude'],
+                'geofence' => $car->geoFence ? 'exists' : 'none'
+            ]);
 
-        if ($car->geoFence && $car->geoFence->is_active) {
-            $this->checkGeoFenceForAlarm($car, $gpsData, $lastGpsData);
+            $gpsData = $car->gpsData()->create($validated);
+
+            if ($car->geoFence && $car->geoFence->is_active) {
+                $this->checkGeoFenceForAlarm($car, $gpsData, $lastGpsData);
+            }
+
+            return response()->json(['status' => 'success']);
+
+        } catch (\Exception $e) {
+            Log::error('Tracker error: ' . $e->getMessage());
+            return response()->json(['status' => 'failed'], 500);
         }
-
-        return response()->json(['status' => 'success']);
-
-    } catch (\Exception $e) {
-        Log::error('Geofence error: ' . $e->getMessage());
-        return response()->json(['status' => 'failed'], 500);
-    }
     }
 
     private function checkGeoFenceForAlarm(Car $car, GpsData $newData, ?GpsData $lastData)
     {
-        if (!$lastData) return;
+        if (!$lastData) {
+            Log::info('No previous GPS data for car_id: ' . $car->id);
+            return;
+        }
 
         $wasInside = $this->geoFenceService->isPointInCircle($lastData, $car->geoFence);
         $isInside = $this->geoFenceService->isPointInCircle($newData, $car->geoFence);
+
+        Log::info('Geofence check result', [
+            'car_id' => $car->id,
+            'wasInside' => $wasInside,
+            'isInside' => $isInside
+        ]);
 
         if ($wasInside && !$isInside) {
             $this->triggerGeofenceExit($car, $newData);
@@ -69,7 +87,8 @@ class TrackerController extends Controller
 
     private function triggerGeofenceExit(Car $car, GpsData $location)
     {
-        // Create event & alarm records
+        Log::info('TRIGGERING GEOFENCE EXIT', ['car_id' => $car->id]);
+
         GeoFenceEvent::create([
             'geo_fence_id' => $car->geoFence->id,
             'car_id' => $car->id,
@@ -89,7 +108,5 @@ class TrackerController extends Controller
             'is_acknowledged' => false,
             'recorded_at' => $location->recorded_at,
         ]);
-
-        // Step 5 will add notification dispatch here
     }
 }
