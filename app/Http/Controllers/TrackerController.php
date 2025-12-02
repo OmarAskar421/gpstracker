@@ -86,27 +86,28 @@ class TrackerController extends Controller
     }
 
     private function triggerGeofenceExit(Car $car, GpsData $location)
-    {
-        Log::info('TRIGGERING GEOFENCE EXIT', ['car_id' => $car->id]);
+{
+    Log::info('TRIGGERING GEOFENCE EXIT', ['car_id' => $car->id]);
 
-        GeoFenceEvent::create([
-            'geo_fence_id' => $car->geoFence->id,
-            'car_id' => $car->id,
-            'event_type' => 'exit',
-            'trigger_lat' => $location->latitude,
-            'trigger_lng' => $location->longitude,
-            'recorded_at' => $location->recorded_at,
-            'is_processed' => false,
-        ]);
+    GeoFenceEvent::create([
+        'geo_fence_id' => $car->geoFence->id,
+        'car_id' => $car->id,
+        'event_type' => 'exit',
+        'trigger_lat' => $location->latitude,
+        'trigger_lng' => $location->longitude,
+        'recorded_at' => $location->recorded_at,
+        'is_processed' => false,
+    ]);
 
-        Alarm::create([
-            'car_id' => $car->id,
-            'alarm_type' => 'geofence',
-            'latitude' => $location->latitude,
-            'longitude' => $location->longitude,
-            'severity' => 'high',
-            'is_acknowledged' => false,
-            'recorded_at' => $location->recorded_at,
-        ]);
-    }
+    Alarm::create([
+        'car_id' => $car->id,
+        'alarm_type' => 'geofence',
+        'trigger_value' => null,  // ← FIXES THE ERROR
+        'latitude' => $location->latitude,
+        'longitude' => $location->longitude,
+        'severity' => 'high',
+        'is_acknowledged' => false,
+        'recorded_at' => $location->recorded_at,
+    ]);
+}
 }
