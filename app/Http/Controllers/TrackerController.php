@@ -85,11 +85,9 @@ class TrackerController extends Controller
         }
     }
 
-    private function triggerGeofenceExit(Car $car, GpsData $location)
+private function triggerGeofenceExit(Car $car, GpsData $location)
 {
-    Log::info('TRIGGERING GEOFENCE EXIT', ['car_id' => $car->id]);
-
-    GeoFenceEvent::create([
+    $event = GeoFenceEvent::create([
         'geo_fence_id' => $car->geoFence->id,
         'car_id' => $car->id,
         'event_type' => 'exit',
@@ -99,15 +97,18 @@ class TrackerController extends Controller
         'is_processed' => false,
     ]);
 
-    Alarm::create([
+    $alarm = Alarm::create([
         'car_id' => $car->id,
         'alarm_type' => 'geofence',
-        'trigger_value' => null,  // ← FIXES THE ERROR
+        'trigger_value' => null,
         'latitude' => $location->latitude,
         'longitude' => $location->longitude,
         'severity' => 'high',
         'is_acknowledged' => false,
         'recorded_at' => $location->recorded_at,
     ]);
+
+    // Dispatch to queue (non-blocking)
+    SendGeofenceNotification::dispatch($car, $alarm);
 }
 }
