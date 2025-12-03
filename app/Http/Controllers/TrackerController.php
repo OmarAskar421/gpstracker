@@ -1,7 +1,7 @@
 <?php
 // app/Http/Controllers/TrackerController.php
 namespace App\Http\Controllers;
-
+use App\Jobs\SendGeofenceNotification;
 use App\Models\Car;
 use App\Models\GpsData;
 use App\Models\GeoFenceEvent;
