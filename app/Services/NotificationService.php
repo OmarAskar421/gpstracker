@@ -24,11 +24,11 @@ class NotificationService
                 ],
                 'data' => [
                     'type' => 'geofence_exit',
-                    'car_id' => $car->id,
-                    'alarm_id' => $alarm->id,
-                    'latitude' => $alarm->latitude,
-                    'longitude' => $alarm->longitude,
-                ],
+                    'car_id' => (string) $car->id,      // ← Cast to string
+                    'alarm_id' => (string) $alarm->id,  // ← Cast to string
+                    'latitude' => (string) $alarm->latitude,
+                    'longitude' => (string) $alarm->longitude,
+                          ],
                 'android' => [
                     'priority' => 'high',
                 ],
