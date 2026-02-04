@@ -6,6 +6,7 @@ use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarCommandController;
 use App\Http\Controllers\GeoFenceController;
 use App\Http\Controllers\TrackerController; // <-- 1. ADD THIS IMPORT
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -20,7 +21,10 @@ Route::middleware('token.auth')->group(function () {
     // Car list (no specific car needed)
     Route::get('/cars', [CarController::class, 'index']);
     Route::post('/update-fcm-token', [AuthController::class, 'updateFcmToken']);
-
+        // Notifications
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index']);
+    Route::delete('/notifications/{id}', [App\Http\Controllers\NotificationController::class, 'destroy']);
+    Route::delete('/notifications', [App\Http\Controllers\NotificationController::class, 'destroyAll']);
     // Car-specific routes with authorization middleware
     Route::prefix('cars/{carId}')->middleware('can.access.car')->group(function () {
         // View permissions only

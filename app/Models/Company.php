@@ -33,4 +33,14 @@ class Company extends Model
     {
         return $this->hasMany(Car::class);
     }
+
+    // ========================================
+    // NEW: Notifications relationship (OPTIONAL)
+    // Gets all notifications for all users in this company
+    // ========================================
+    public function notifications()
+    {
+        return $this->hasManyThrough(Notification::class, User::class);
+    }
+    // ========================================
 }

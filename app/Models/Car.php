@@ -1,5 +1,8 @@
 <?php
+// app/Models/Car.php
+
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -7,7 +10,7 @@ class Car extends Model
 {
     use HasFactory;
 
-   protected $fillable = [
+    protected $fillable = [
         'company_id',
         'user_id',
         'car_name',
@@ -19,7 +22,7 @@ class Car extends Model
         'is_active'
     ];
 
-   protected $casts = [
+    protected $casts = [
         'tracking_enabled' => 'boolean',
         'alarm_enabled' => 'boolean',
         'is_active' => 'boolean'
@@ -41,14 +44,15 @@ class Car extends Model
         return $this->hasMany(GpsData::class);
     }
 
-     public function latestLocation()
+    public function latestLocation()
     {
-    return $this->hasOne(GpsData::class)->ofMany('recorded_at', 'max');
+        return $this->hasOne(GpsData::class)->ofMany('recorded_at', 'max');
     }
 
     public function geoFence()
     {
-        return $this->hasOne(GeoFence::class);    }
+        return $this->hasOne(GeoFence::class);
+    }
 
     public function alarms()
     {
@@ -64,4 +68,13 @@ class Car extends Model
     {
         return $this->hasMany(UserCarPermission::class);
     }
+
+    // ========================================
+    // NEW: Notifications relationship
+    // ========================================
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+    // ========================================
 }

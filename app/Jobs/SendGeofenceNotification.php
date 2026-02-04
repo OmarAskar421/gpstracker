@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Models\Car;
-use App\Models\Alarm;
 use App\Services\NotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -16,12 +15,23 @@ class SendGeofenceNotification implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(
-        public Car $car,
-        public Alarm $alarm
+        public int $carId,
+        public float $latitude,
+        public float $longitude,
+        public $recordedAt
     ) {}
 
     public function handle(NotificationService $service)
     {
-        $service->sendGeofenceNotification($this->car, $this->alarm);
+        $car = Car::find($this->carId);
+        
+        if ($car) {
+            $service->sendGeofenceNotification(
+                $car,
+                $this->latitude,
+                $this->longitude,
+                $this->recordedAt
+            );
+        }
     }
 }

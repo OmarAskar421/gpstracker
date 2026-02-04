@@ -17,8 +17,8 @@ class User extends Authenticatable
         'email',
         'company_id',
         'token',
-        'fcm_token',              // ADD THIS
-        'push_notifications_enabled', // ADD THIS
+        'fcm_token',
+        'push_notifications_enabled',
         'is_active'
     ];
 
@@ -41,6 +41,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserCarPermission::class);
     }
+
+    // ========================================
+    // NEW: Notifications relationship
+    // ========================================
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+    // ========================================
 
     public function accessibleCars()
     {
