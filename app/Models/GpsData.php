@@ -13,25 +13,28 @@ class GpsData extends Model
     protected $table = 'gps_data';
 
     protected $fillable = [
-        'car_id',
-        'latitude',
-        'longitude',
-        'speed',
-        'heading',
-        'altitude',
-        'accuracy',
-        'satellite_count',
-        'device_battery',
-        'door_open',
-        'fuel_cutoff',
-        'recorded_at'
+    'car_id',
+    'latitude',
+    'longitude',
+    'speed',
+    'heading',
+    'altitude',
+    'accuracy',
+    'satellite_count',
+    'ignition',      // CHANGED from device_battery
+    'door_open',
+    'fuel_cutoff',
+    'voltage',       // ADD
+    'snr',           // ADD
+    'recorded_at'
     ];
 
-    protected $casts = [
-        'door_open' => 'boolean',
-        'fuel_cutoff' => 'boolean',
-        'recorded_at' => 'datetime'
-    ];
+protected $casts = [
+    'door_open' => 'boolean',
+    'fuel_cutoff' => 'boolean',
+    'ignition' => 'boolean',    // CHANGED from device_battery
+    'recorded_at' => 'datetime'
+];
 
     // Relationships
     public function car()

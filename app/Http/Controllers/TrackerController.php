@@ -21,20 +21,22 @@ class TrackerController extends Controller
 
     public function storeData(Request $request)
     {
-        $validated = $request->validate([
-            'imei' => 'required|string|exists:cars,imei',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'speed' => 'sometimes|numeric',
-            'heading' => 'sometimes|numeric',
-            'altitude' => 'sometimes|numeric',
-            'accuracy' => 'sometimes|numeric',
-            'satellite_count' => 'sometimes|integer',
-            'device_battery' => 'sometimes|numeric',
-            'door_open' => 'sometimes|boolean',
-            'fuel_cutoff' => 'sometimes|boolean',
-            'recorded_at' => 'sometimes|date',
-        ]);
+       $validated = $request->validate([
+    'imei' => 'required|string|exists:cars,imei',
+    'latitude' => 'required|numeric',
+    'longitude' => 'required|numeric',
+    'speed' => 'sometimes|numeric',
+    'heading' => 'sometimes|numeric',
+    'altitude' => 'sometimes|numeric',
+    'accuracy' => 'sometimes|numeric',
+    'satellite_count' => 'sometimes|integer',
+    'ignition' => 'sometimes|boolean',      // CHANGED from device_battery
+    'door_open' => 'sometimes|boolean',
+    'fuel_cutoff' => 'sometimes|boolean',
+    'voltage' => 'sometimes|numeric',       // ADD
+    'snr' => 'sometimes|numeric',           // ADD
+    'recorded_at' => 'sometimes|date',
+]);
 
         try {
             $car = Car::where('imei', $validated['imei'])->first();
