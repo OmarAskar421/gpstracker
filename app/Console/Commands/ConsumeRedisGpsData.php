@@ -79,13 +79,13 @@ class ConsumeRedisGpsData extends Command
                     'speed' => $data['speed'] ?? null,
                     'heading' => $data['heading'] ?? null,
                     'altitude' => $data['altitude'] ?? null,
-                    'accuracy' => $data['accuracy'] ?? null,
+                    'accuracy' => $data['accuracy'] ?? $data['hdop'] ?? null,
                     'satellite_count' => $data['satellite_count'] ?? null,
                     'ignition' => $data['ignition'] ?? false,
                     'door_open' => $data['door_open'] ?? false,
                     'fuel_cutoff' => $data['fuel_cutoff'] ?? false,
                     'voltage' => $data['voltage'] ?? null,
-                    'snr' => $data['snr'] ?? null,
+                    'snr' => $data['snr'] ?? $data['signal_quality'] ?? null,  // ← CHANGED
                     'recorded_at' => $data['recorded_at'] ?? null,
                 ];
 
