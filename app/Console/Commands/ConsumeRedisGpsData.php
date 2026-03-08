@@ -72,22 +72,39 @@ class ConsumeRedisGpsData extends Command
                     continue;
                 }
 
-                // Prepare data for the service (same fields as HTTP endpoint)
-                $validated = [
-                    'latitude' => $data['latitude'] ?? null,
-                    'longitude' => $data['longitude'] ?? null,
-                    'speed' => $data['speed'] ?? null,
-                    'heading' => $data['heading'] ?? null,
-                    'altitude' => $data['altitude'] ?? null,
-                    'accuracy' => $data['accuracy'] ?? $data['hdop'] ?? null,
-                    'satellite_count' => $data['satellite_count'] ?? null,
-                    'ignition' => $data['ignition'] ?? false,
-                    'door_open' => $data['door_open'] ?? false,
-                    'fuel_cutoff' => $data['fuel_cutoff'] ?? false,
-                    'voltage' => $data['voltage'] ?? null,
-                    'snr' => $data['snr'] ?? $data['signal_quality'] ?? null,  // ← CHANGED
-                    'recorded_at' => $data['recorded_at'] ?? null,
+                // Map incoming field names (both old and new) to database columns
+                $fieldMap = [
+                    'latitude'        => ['la', 'latitude'],
+                    'longitude'       => ['lo', 'longitude'],
+                    'speed'           => ['sp', 'speed'],
+                    'heading'         => ['hd', 'heading'],
+                    'altitude'        => ['al', 'altitude'],
+                    'accuracy'        => ['ac', 'accuracy', 'hdop'],
+                    'satellite_count' => ['sc', 'satellite_count'],
+                    'ignition'        => ['ig', 'ignition'],
+                    'voltage'         => ['vl', 'voltage'],
+                    'snr'             => ['sn', 'snr', 'signal_quality'],
+                    'door_open'       => ['do', 'door_open'],
+                    'fuel_cutoff'     => ['fc', 'fuel_cutoff'],
+                    'recorded_at'     => ['ts', 'recorded_at'],
                 ];
+
+                $validated = [];
+                foreach ($fieldMap as $dest => $sources) {
+                    $value = null;
+                    foreach ($sources as $src) {
+                        if (array_key_exists($src, $data)) {
+                            $value = $data[$src];
+                            break;
+                        }
+                    }
+                    $validated[$dest] = $value;
+                }
+
+                // Set defaults for boolean fields if not present
+                $validated['ignition']    = $validated['ignition'] ?? false;
+                $validated['door_open']   = $validated['door_open'] ?? false;
+                $validated['fuel_cutoff'] = $validated['fuel_cutoff'] ?? false;
 
                 // Remove null values (optional, depends on your model)
                 $validated = array_filter($validated, function ($value) {
