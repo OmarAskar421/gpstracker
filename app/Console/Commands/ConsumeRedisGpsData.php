@@ -106,6 +106,15 @@ class ConsumeRedisGpsData extends Command
                 $validated['door_open']   = $validated['door_open'] ?? false;
                 $validated['fuel_cutoff'] = $validated['fuel_cutoff'] ?? false;
 
+                // If heading is outside valid range (0-360), set it to 360
+                if (isset($validated['heading']) && ($validated['heading'] < 0 || $validated['heading'] > 360)) {
+                    Log::warning('Invalid heading from Redis device, setting to 360', [
+                        'imei' => $imei, 
+                        'original_heading' => $validated['heading']
+                    ]);
+                    $validated['heading'] = 360;
+                }
+
                 // Remove null values (optional, depends on your model)
                 $validated = array_filter($validated, function ($value) {
                     return $value !== null;

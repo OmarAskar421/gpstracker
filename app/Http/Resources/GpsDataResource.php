@@ -1,3 +1,5 @@
+<?php
+
 // app/Http/Resources/GpsDataResource.php
 
 namespace App\Http\Resources;
@@ -17,7 +19,7 @@ class GpsDataResource extends JsonResource
             'heading' => $this->heading ? (float) $this->heading : null,
             'altitude' => $this->altitude ? (float) $this->altitude : null,
             'accuracy' => $this->accuracy ? (float) $this->accuracy : null,
-            'satellite_count' => $this->satellite_count ? (int) $this->satellite_count : null,  // ← ADD THIS LINE
+            'satellite_count' => $this->satellite_count ? (int) $this->satellite_count : null,  //  ^f^p ADD THIS LINE
             'ignition' => $this->ignition,
             'door_open' => $this->door_open,
             'fuel_cutoff' => $this->fuel_cutoff,

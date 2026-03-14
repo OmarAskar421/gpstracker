@@ -38,6 +38,15 @@ class TrackerController extends Controller
         try {
             $car = Car::where('imei', $validated['imei'])->firstOrFail();
             
+            // If heading is outside valid range (0-360), set it to 360
+            if (isset($validated['heading']) && ($validated['heading'] < 0 || $validated['heading'] > 360)) {
+                Log::warning('Invalid heading from HTTP tracker, setting to 360', [
+                    'imei' => $validated['imei'], 
+                    'original_heading' => $validated['heading']
+                ]);
+                $validated['heading'] = 360;
+            }
+            
             // Use the service to process the data
             $this->gpsDataService->processGpsData($car, $validated);
 
