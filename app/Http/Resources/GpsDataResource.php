@@ -1,6 +1,6 @@
 <?php
 
-// app/Http/Resources/GpsDataResource.php
+// app/Http/Resources/GpsDataResource.php kkk
 
 namespace App\Http\Resources;
 
